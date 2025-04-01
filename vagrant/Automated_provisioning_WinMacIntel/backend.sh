@@ -13,10 +13,11 @@ memcached -p 11211 -U 11111 -u memcached -d
 yum install socat -y
 yum install erlang -y
 yum install wget -y
-wget https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.10/rabbitmq-server-3.6.10-1.el7.noarch.rpm
+# Using more recent RabbitMQ version
+wget https://github.com/rabbitmq/rabbitmq-server/releases/download/v3.8.35/rabbitmq-server-3.8.35-1.el8.noarch.rpm
 rpm --import https://www.rabbitmq.com/rabbitmq-release-signing-key.asc
-yum update
-rpm -Uvh rabbitmq-server-3.6.10-1.el7.noarch.rpm
+yum update -y
+rpm -Uvh rabbitmq-server-3.8.35-1.el8.noarch.rpm
 systemctl start rabbitmq-server
 systemctl enable rabbitmq-server
 systemctl status rabbitmq-server
@@ -45,7 +46,7 @@ mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 mysql -u root -p"$DATABASE_PASS" -e "create database accounts"
 mysql -u root -p"$DATABASE_PASS" -e "grant all privileges on accounts.* TO 'admin'@'localhost' identified by 'admin123'"
 mysql -u root -p"$DATABASE_PASS" -e "grant all privileges on accounts.* TO 'admin'@'app01' identified by 'admin123'"
-mysql -u root -p"$DATABASE_PASS" accounts < /vagrant/vprofile-repo/src/main/resources/db_backup.sql
+mysql -u root -p"$DATABASE_PASS" accounts < /vagrant/sample_java_app/src/main/resources/db_backup.sql
 mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
 # Restart mariadb-server

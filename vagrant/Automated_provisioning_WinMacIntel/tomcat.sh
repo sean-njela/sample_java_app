@@ -11,7 +11,7 @@ chown -R tomcat.tomcat /usr/local/tomcat
 
 rm -rf /etc/systemd/system/tomcat.service
 
-cat <<EOT>> /etc/systemd/system/tomcat.service
+cat <<EOT > /etc/systemd/system/tomcat.service
 [Unit]
 Description=Tomcat
 After=network.target
@@ -28,7 +28,7 @@ Environment=JAVA_HOME=/usr/lib/jvm/jre
 
 Environment=CATALINA_PID=/var/tomcat/%i/run/tomcat.pid
 Environment=CATALINA_HOME=/usr/local/tomcat
-Environment=CATALINE_BASE=/usr/local/tomcat
+Environment=CATALINA_BASE=/usr/local/tomcat
 
 ExecStart=/usr/local/tomcat/bin/catalina.sh run
 ExecStop=/usr/local/tomcat/bin/shutdown.sh
@@ -46,16 +46,26 @@ systemctl daemon-reload
 systemctl start tomcat
 systemctl enable tomcat
 
-git clone -b main https://github.com/devopshydclub/vprofile-project.git
-cd vprofile-project
+git clone https://github.com/sean-njela/sample_java_app.git
+cd sample_java_app
 mvn install
 systemctl stop tomcat
 sleep 20
 rm -rf /usr/local/tomcat/webapps/ROOT*
 cp target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
 systemctl start tomcat
-sleep 20
+# Wait for Tomcat to fully deploy the WAR file
+sleep 60
+
+# Ensure the target directory exists before copying
+mkdir -p /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/
+
+# Copy the application properties file
+cp /vagrant/application.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/application.properties
+
+# Disable firewall
 systemctl stop firewalld
 systemctl disable firewalld
-#cp /vagrant/application.properties /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/application.properties
+
+# Restart Tomcat to apply the new properties
 systemctl restart tomcat
