@@ -64,3 +64,6 @@ application-*.properties
 application-*.yml
 !application-example.properties
 !application-example.yml
+
+target/
+target/*
