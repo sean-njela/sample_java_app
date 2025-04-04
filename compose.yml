@@ -1,0 +1,59 @@
+services:
+  # vprodb: container we are building / stage
+  db01:
+    build:
+      # instructions on how compose should build the image
+      context: ./Docker-files/db
+      # context: since it's a file path to the Dockerfile
+    image: vprocontainers/vprofiledb
+    # {account-name}/{image-name}
+    container_name: db01
+    # make sure it matches with source code
+    ports:
+      - "3306:3306"
+    volumes:
+      - db01data:/var/lib/mysql
+      # map LHS volume on local to RHS volume on container
+    environment:
+      - MYSQL_ROOT_PASSWORD=vprodbpass
+
+  # vprocache01: another container
+  mc01:
+    image: memcached
+    # no build since no Dockerfile
+    container_name: mc01
+    ports:
+      - "11211:11211"
+
+  rmq01:
+    image: rabbitmq
+    container_name: rmq01
+    ports:  
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  app01:
+    build:
+      context: ./Docker-files/app
+    image: vprocontainers/vprofileapp
+    container_name: app01
+    ports:
+      - "8080:8080"
+    volumes:
+      - app01data:/usr/local/tomcat/webapps
+
+  web01:
+    build:
+      context: ./Docker-files/web
+    image: vprocontainers/vprofileweb
+    container_name: web01
+    ports:
+      - "80:80"
+
+volumes:
+  # volumes we will map (for database and app)
+  db01data: {}
+  app01data: {}
+  # {} means a host volume (suitable for dev purposes)
